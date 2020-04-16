@@ -8,7 +8,6 @@ echo "Script start: $start_m:$start_s"
 now=$(date +"%m_%d_%Y-%H_%M")
 plex_library_dir="/mnt/disks/Plex_SSD_194051800713/plex/Library/"
 backup_dir="/mnt/user/backup_share/plex"
-fail_counter=0
 num_backups_to_keep=3
 
 # Stop the container
@@ -23,6 +22,7 @@ plex_running=`docker inspect -f '{{.State.Running}}' plex`
 echo "Plex running: $plex_running"
 
 # If the container is still running retry 5 times
+fail_counter=0
 while [ "$plex_running" = "true" ];
 do
     fail_counter=$((fail_counter+1))
