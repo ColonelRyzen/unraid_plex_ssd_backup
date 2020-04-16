@@ -7,7 +7,7 @@ echo "Script start: $start_m:$start_s"
 
 now=$(date +"%m_%d_%Y-%H_%M")
 plex_library_dir="/mnt/disks/Plex_SSD_194051800713/plex/Library/"
-fail_counter=0
+backup_dir="/mnt/user/backup_share/plex"
 num_backups_to_keep=3
 
 # Stop the container
@@ -22,6 +22,7 @@ plex_running=`docker inspect -f '{{.State.Running}}' plex`
 echo "Plex running: $plex_running"
 
 # If the container is still running retry 5 times
+fail_counter=0
 while [ "$plex_running" = "true" ];
 do
     fail_counter=$((fail_counter+1))
@@ -46,16 +47,16 @@ if [ "$plex_running" = "false" ]
 then
     echo "Compressing and backing up Plex"
     cd $plex_library_dir
-    tar -czf - Application\ Support/ -P | pv -s $(du -sb Application\ Support/ | awk '{print $1}') | gzip > /mnt/user/backup_share/plex/plex_backup_$now.tar.gz
+    tar -czf - Application\ Support/ -P | pv -s $(du -sb Application\ Support/ | awk '{print $1}') | gzip > $backup_dir/plex_backup_$now.tar.gz
     echo "Starting Plex"
     docker start plex
 fi
 
 # Get the number of files in the backup directory
-num_files=`ls /mnt/user/backup_share/plex/plex_backup_*.tar.gz | wc -l`
+num_files=`ls $backup_dir/plex_backup_*.tar.gz | wc -l`
 echo "Number of files in directory: $num_files"
 # Get the full path of the oldest file in the directory
-oldest_file=`ls -t /mnt/user/backup_share/plex/plex_backup_*.tar.gz | tail -1`
+oldest_file=`ls -t $backup_dir/plex_backup_*.tar.gz | tail -1`
 echo $oldest_file
 
 # After the backup, if the number of files is larger than the number of backups we want to keep
