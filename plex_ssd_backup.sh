@@ -46,7 +46,7 @@ done
 if [ "$plex_running" = "false" ]
 then
     echo "Compressing and backing up Plex"
-    cd $plex_library_dir
+    cd "$plex_library_dir"
     tar -czf - Application\ Support/ -P | pv -s $(du -sb Application\ Support/ | awk '{print $1}') | gzip > $backup_dir/plex_backup_$now.tar.gz
     echo "Starting Plex"
     docker start plex
